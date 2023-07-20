@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>上传图片</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #555;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .selected-file {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        button[type="submit"] {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #555;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            text-align: center;
+            color: #333;
+        }赵嘉贤(𝓒𝓸𝓬𝓪𝓒𝓸𝓵𝓪)
+
+        #messageContainer {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-form">
+            <h1>识别</h1>
+
+            <form id="uploadForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="imageUpload" class="custom-file-upload">
+                    选择文件
+                </label>
+                <input type="file" name="imageUpload" id="imageUpload" accept=".jpg, .jpeg, .png" required>
+                <div class="selected-file" id="selectedFile"></div>
+                <button type="submit">上传图片</button>
+            </form>
+
+            <div id="messageContainer"></div>
+            <div id="resultContainer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#imageUpload').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                $('#selectedFile').text(fileName);
+            });
+
+            $('#uploadForm').submit(function(event) {
+                event.preventDefault();
+
+                var formData = new FormData($(this)[0]);
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/imgdetec/',
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log(response);
+                        // 显示结果
+                        var message = response.message;
+                        var result = response.result;
+                        $('#messageContainer').text(message);
+                        $('#resultContainer').text(result);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
